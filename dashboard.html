@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | EduTeams</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <style>
+    .sidebar {
+      background: #2c3e50;
+      color: white;
+      min-height: 100vh;
+    }
+    .sidebar .nav-link {
+      color: rgba(255, 255, 255, 0.8);
+      border-radius: 5px;
+      margin: 5px 0;
+    }
+    .sidebar .nav-link:hover, .sidebar .nav-link.active {
+      background: #34495e;
+      color: white;
+    }
+    .main-content {
+      background: #f8f9fa;
+    }
+    .card-dashboard {
+      border-radius: 10px;
+      transition: transform 0.2s;
+    }
+    .card-dashboard:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar -->
+      <div class="col-md-3 col-lg-2 sidebar p-0">
+        <div class="p-3 text-center">
+          <img src="https://via.placeholder.com/150x50" alt="Logo" class="img-fluid mb-3">
+        </div>
+        <ul class="nav flex-column px-3">
+          <li class="nav-item">
+            <a class="nav-link active" href="#"><i class="bi bi-house-door me-2"></i> Inicio</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="grupos.html"><i class="bi bi-people me-2"></i> Grupos</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="usuarios.html"><i class="bi bi-chat-left-text me-2"></i> Chat</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#"><i class="bi bi-camera-video me-2"></i> Videollamada</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="tareas.html"><i class="bi bi-list-task me-2"></i> Tareas</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="recompensas.html"><i class="bi bi-award me-2"></i> Recompensas</a>
+          </li>
+          <li class="nav-item mt-4">
+            <a class="nav-link text-danger logout-btn" href="#"><i class="bi bi-box-arrow-left me-2"></i> Cerrar Sesión</a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Main Content -->
+      <div class="col-md-9 col-lg-10 main-content p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2 class="fw-bold" id="welcomeMessage">Bienvenido, Usuario</h2>
+          <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown">
+              <i class="bi bi-person-circle me-1"></i> Perfil
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#">Mi cuenta</a></li>
+              <li><a class="dropdown-item" href="#">Configuración</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger logout-btn" href="#">Cerrar Sesión</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Cards de Resumen -->
+        <div class="row mb-4">
+          <div class="col-md-4 mb-3">
+            <div class="card card-dashboard h-100">
+              <div class="card-body">
+                <div class="d-flex justify-content-between">
+                  <h5 class="card-title">Tareas Pendientes</h5>
+                  <span class="badge bg-primary">5</span>
+                </div>
+                <p class="card-text">Revisa tus tareas asignadas.</p>
+                <a href="#" class="btn btn-sm btn-outline-primary">Ver más</a>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <div class="card card-dashboard h-100">
+              <div class="card-body">
+                <div class="d-flex justify-content-between">
+                  <h5 class="card-title">Grupos Activos</h5>
+                  <span class="badge bg-success">3</span>
+                </div>
+                <p class="card-text">Participa en tus grupos.</p>
+                <a href="#" class="btn btn-sm btn-outline-success">Ver más</a>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <div class="card card-dashboard h-100">
+              <div class="card-body">
+                <div class="d-flex justify-content-between">
+                  <h5 class="card-title">Recompensas</h5>
+                  <span class="badge bg-warning text-dark">120 pts</span>
+                </div>
+                <p class="card-text">Canjea tus puntos.</p>
+                <a href="#" class="btn btn-sm btn-outline-warning">Ver más</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actividad Reciente -->
+        <div class="card">
+          <div class="card-header bg-white">
+            <h5 class="mb-0">Actividad Reciente</h5>
+          </div>
+          <div class="card-body">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="mb-1">Nuevo mensaje en Grupo Matemáticas</h6>
+                  <small class="text-muted">Hace 10 minutos</small>
+                </div>
+                <a href="#" class="btn btn-sm btn-outline-primary">Ver</a>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="mb-1">Tarea "Proyecto Final" pendiente</h6>
+                  <small class="text-muted">Hace 2 horas</small>
+                </div>
+                <a href="#" class="btn btn-sm btn-outline-success">Completar</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <!-- Inicializar Firebase -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAUXbLI2dACC6LkJ7fUn8sK6id7exITORU",
+      authDomain: "poi-nuevo-b93f9.firebaseapp.com",
+      databaseURL: "https://poi-nuevo-b93f9-default-rtdb.firebaseio.com",
+      projectId: "poi-nuevo-b93f9",
+      storageBucket: "poi-nuevo-b93f9.appspot.com",
+      messagingSenderId: "233873631257",
+      appId: "1:233873631257:web:5c0b79ba839c18fdcea288"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+  <!-- Mostrar nombre y cerrar sesión -->
+  <script>
+    firebase.auth().onAuthStateChanged((user) => {
+      if (!user) {
+        window.location.href = "login.html";
+      } else {
+        const uid = user.uid;
+        firebase.database().ref("users/" + uid).once("value").then((snapshot) => {
+          const userData = snapshot.val();
+          const nombre = userData && userData.nombre ? userData.nombre : "Usuario";
+          document.getElementById("welcomeMessage").textContent = `Bienvenido, ${nombre}`;
+        });
+      }
+    });
+
+    // Logout
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('logout-btn')) {
+        e.preventDefault();
+        firebase.auth().signOut().then(() => {
+          window.location.href = "login.html";
+        });
+      }
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

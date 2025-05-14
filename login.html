@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login | EduTeams</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+  <!-- Firebase v8 -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAUXbLI2dACC6LkJ7fUn8sK6id7exITORU",
+      authDomain: "poi-nuevo-b93f9.firebaseapp.com",
+      projectId: "poi-nuevo-b93f9",
+      storageBucket: "poi-nuevo-b93f9.appspot.com",
+      messagingSenderId: "233873631257",
+      appId: "1:233873631257:web:5c0b79ba839c18fdcea288",
+      measurementId: "G-NEVC42NRZQ",
+      databaseURL: "https://poi-nuevo-b93f9-default-rtdb.firebaseio.com"
+    };
+
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      height: 100vh;
+    }
+    .login-card {
+      border-radius: 15px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="container d-flex justify-content-center align-items-center h-100">
+    <div class="card login-card w-100" style="max-width: 400px;">
+      <div class="card-body p-5">
+        <div class="text-center mb-4">
+          <img src="https://via.placeholder.com/100" alt="Logo" class="mb-3"/>
+          <h2 class="fw-bold">Iniciar Sesión</h2>
+        </div>
+        <form id="loginForm">
+          <div class="mb-3">
+            <label for="email" class="form-label">Correo Electrónico</label>
+            <input type="email" class="form-control" id="email" placeholder="ejemplo@mail.com" required />
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Contraseña</label>
+            <input type="password" class="form-control" id="password" placeholder="••••••••" required />
+          </div>
+          <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Acceder</button>
+          <div class="text-center mt-3">
+            <a href="#" class="text-decoration-none">¿Olvidaste tu contraseña?</a>
+          </div>
+          <hr class="my-4"/>
+          <p class="text-center text-muted">
+            ¿No tienes cuenta?
+            <a href="registro.html" class="fw-bold text-primary text-decoration-none">Regístrate</a>
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function (event) {
+      event.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      firebase.auth().signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          // Login exitoso
+          window.location.href = 'dashboard.html';
+        })
+        .catch((error) => {
+          alert('Error: ' + error.message);
+        });
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

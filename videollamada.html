@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Videollamada | EduTeams</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+        }
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+        }
+        .participants {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .participant {
+            flex: 1 1 200px;
+            max-width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Reutiliza el mismo sidebar del Dashboard -->
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3 col-lg-2 sidebar p-0">
+                <!-- Sidebar igual al Dashboard -->
+            </div>
+            <div class="col-md-9 col-lg-10 main-content p-4">
+                <h2 class="mb-4">Videollamada: Grupo Matemáticas</h2>
+                <div class="video-container mb-3 bg-dark">
+                    <video id="localVideo" autoplay muted></video>
+                </div>
+                <div class="participants mb-4">
+                    <div class="participant">
+                        <video class="w-100" autoplay></video>
+                    </div>
+                    <div class="participant">
+                        <video class="w-100" autoplay></video>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-center gap-3">
+                    <button class="btn btn-danger rounded-circle p-3"><i class="bi bi-camera-video-off fs-4"></i></button>
+                    <button class="btn btn-secondary rounded-circle p-3"><i class="bi bi-mic-mute fs-4"></i></button>
+                    <button class="btn btn-success rounded-circle p-3"><i class="bi bi-share fs-4"></i></button>
+                    <button class="btn btn-primary rounded-circle p-3"><i class="bi bi-phone fs-4"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registro | EduTeams</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <!-- Firebase v8 -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <script>
+    const firebaseConfig = {
+    apiKey: "AIzaSyAUXbLI2dACC6LkJ7fUn8sK6id7exITORU",
+    authDomain: "poi-nuevo-b93f9.firebaseapp.com",
+    projectId: "poi-nuevo-b93f9",
+    storageBucket: "poi-nuevo-b93f9.appspot.com",
+    messagingSenderId: "233873631257",
+    appId: "1:233873631257:web:5c0b79ba839c18fdcea288",
+    measurementId: "G-NEVC42NRZQ",
+    databaseURL: "https://poi-nuevo-b93f9-default-rtdb.firebaseio.com"
+
+    };
+
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      height: 100vh;
+    }
+    .register-card {
+      border-radius: 15px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="container d-flex justify-content-center align-items-center h-100">
+    <div class="card register-card w-100" style="max-width: 500px;">
+      <div class="card-body p-5">
+        <div class="text-center mb-4">
+          <img src="https://via.placeholder.com/100" alt="Logo" class="mb-3" />
+          <h2 class="fw-bold">Crear Cuenta</h2>
+        </div>
+        <form id="registerForm">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="nombre" class="form-label">Nombre</label>
+              <input type="text" class="form-control" id="nombre" required />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="apellido" class="form-label">Apellido</label>
+              <input type="text" class="form-control" id="apellido" required />
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="email" class="form-label">Correo Electrónico</label>
+            <input type="email" class="form-control" id="email" required />
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Contraseña</label>
+            <input type="password" class="form-control" id="password" required />
+          </div>
+          <div class="mb-3">
+            <label for="confirm-password" class="form-label">Confirmar Contraseña</label>
+            <input type="password" class="form-control" id="confirm-password" required />
+          </div>
+          <button type="submit" class="btn btn-success w-100 py-2 fw-bold">Registrarse</button>
+          <hr class="my-4" />
+          <p class="text-center text-muted">
+            ¿Ya tienes cuenta?
+            <a href="login.html" class="fw-bold text-primary text-decoration-none">Inicia Sesión</a>
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('registerForm').addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      const nombre = document.getElementById('nombre').value;
+      const apellido = document.getElementById('apellido').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+
+      if (password !== confirmPassword) {
+        alert("Las contraseñas no coinciden.");
+        return;
+      }
+
+      firebase.auth().createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          return firebase.database().ref("users/" + user.uid).set({
+            nombre: nombre,
+            apellido: apellido,
+            email: email
+          });
+        })
+        .then(() => {
+          alert("Usuario registrado con éxito.");
+          window.location.href = "login.html";
+        })
+        .catch((error) => {
+          alert("Error: " + error.message);
+        });
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

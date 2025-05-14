@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Tareas | EduTeams</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body { background: #f8f9fa; }
+    .completed { text-decoration: line-through; color: gray; }
+  </style>
+</head>
+<body>
+  <div class="container py-4">
+    <h2 class="mb-4">Tareas por Grupo</h2>
+
+    <div class="mb-3">
+      <label for="grupoSelect" class="form-label">Selecciona un grupo:</label>
+      <select class="form-select" id="grupoSelect"></select>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header">Crear Nueva Tarea</div>
+      <div class="card-body">
+        <input type="text" class="form-control mb-2" id="tituloTarea" placeholder="Título de la tarea">
+        <textarea class="form-control mb-2" id="descripcionTarea" placeholder="Descripción (opcional)"></textarea>
+        <button class="btn btn-primary" id="crearTareaBtn">Crear Tarea</button>
+      </div>
+    </div>
+
+    <h4 class="mb-3">Tareas del Grupo</h4>
+    <ul class="list-group" id="listaTareas"></ul>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAUXbLI2dACC6LkJ7fUn8sK6id7exITORU",
+      authDomain: "poi-nuevo-b93f9.firebaseapp.com",
+      databaseURL: "https://poi-nuevo-b93f9-default-rtdb.firebaseio.com",
+      projectId: "poi-nuevo-b93f9",
+      storageBucket: "poi-nuevo-b93f9.appspot.com",
+      messagingSenderId: "233873631257",
+      appId: "1:233873631257:web:5c0b79ba839c18fdcea288"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    const grupoSelect = document.getElementById("grupoSelect");
+    const listaTareas = document.getElementById("listaTareas");
+    const crearBtn = document.getElementById("crearTareaBtn");
+
+    let currentUser = null;
+    let gruposDelUsuario = [];
+
+    firebase.auth().onAuthStateChanged(user => {
+      if (!user) return window.location.href = "login.html";
+      currentUser = user;
+      cargarGrupos(user.uid);
+    });
+
+    function cargarGrupos(uid) {
+      firebase.database().ref("grupos").once("value").then(snapshot => {
+        grupoSelect.innerHTML = "";
+        gruposDelUsuario = [];
+
+        snapshot.forEach(child => {
+          const grupo = child.val();
+          if (grupo.miembros && grupo.miembros[uid]) {
+            gruposDelUsuario.push({ id: child.key, nombre: grupo.nombre });
+          }
+        });
+
+        gruposDelUsuario.forEach(g => {
+          const option = document.createElement("option");
+          option.value = g.id;
+          option.textContent = g.nombre;
+          grupoSelect.appendChild(option);
+        });
+
+        if (gruposDelUsuario.length > 0) {
+          mostrarTareas(gruposDelUsuario[0].id);
+        }
+      });
+    }
+
+    grupoSelect.addEventListener("change", () => {
+      const grupoId = grupoSelect.value;
+      mostrarTareas(grupoId);
+    });
+
+    crearBtn.addEventListener("click", () => {
+      const grupoId = grupoSelect.value;
+      const titulo = document.getElementById("tituloTarea").value.trim();
+      const descripcion = document.getElementById("descripcionTarea").value.trim();
+
+      if (!titulo) return alert("El título es obligatorio.");
+
+      firebase.database().ref("tareas/" + grupoId).push({
+        titulo,
+        descripcion
+      });
+
+      document.getElementById("tituloTarea").value = "";
+      document.getElementById("descripcionTarea").value = "";
+    });
+
+    function mostrarTareas(grupoId) {
+      listaTareas.innerHTML = "";
+      firebase.database().ref("tareas/" + grupoId).off();
+      firebase.database().ref("tareas/" + grupoId).on("value", snap => {
+        listaTareas.innerHTML = "";
+
+        const tareas = snap.val();
+        if (!tareas) {
+          listaTareas.innerHTML = "<li class='list-group-item'>No hay tareas aún.</li>";
+          return;
+        }
+
+        Object.entries(tareas).forEach(([tareaId, tarea]) => {
+          firebase.database().ref(`tareasCompletadas/${grupoId}/${tareaId}/${currentUser.uid}`)
+            .once("value")
+            .then(completadoSnap => {
+              const completado = completadoSnap.exists();
+
+              const li = document.createElement("li");
+              li.className = "list-group-item d-flex justify-content-between align-items-center";
+              li.innerHTML = `
+                <div>
+                  <h6 class="${completado ? 'completed' : ''} mb-1">${tarea.titulo}</h6>
+                  <small class="text-muted">${tarea.descripcion || ''}</small>
+                </div>
+                ${completado ? '<span class="badge bg-success">Completado</span>' : `
+                  <button class="btn btn-sm btn-outline-success marcarBtn">Marcar como hecho</button>
+                `}
+              `;
+
+              if (!completado) {
+                li.querySelector(".marcarBtn").addEventListener("click", () => {
+                  firebase.database().ref(`tareasCompletadas/${grupoId}/${tareaId}/${currentUser.uid}`).set(true);
+                });
+              }
+
+              listaTareas.appendChild(li);
+            });
+        });
+      });
+    }
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -26,6 +26,10 @@
       background: #f1f1f1;
       border-radius: 10px 10px 10px 0;
     }
+    .map-container {
+      width: 100%;
+      height: 150px;
+    }
   </style>
 </head>
 <body>
@@ -44,6 +48,13 @@
         <div class="chat-messages mb-3 flex-grow-1 overflow-auto" id="chatMessages"></div>
         <div class="input-group">
           <input type="text" class="form-control" placeholder="Escribe un mensaje..." id="messageInput" />
+          <input type="file" id="fileInput" style="display: none;" />
+          <button class="btn btn-outline-secondary" id="fileUploadBtn" title="Enviar archivo o imagen">
+            <i class="bi bi-paperclip"></i>
+          </button>
+          <button class="btn btn-outline-secondary" id="sendLocationBtn" title="Enviar ubicación">
+            <i class="bi bi-geo-alt-fill"></i>
+          </button>
           <button class="btn btn-primary" id="sendBtn"><i class="bi bi-send"></i></button>
         </div>
       </div>
@@ -71,6 +82,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
   <script>
     const firebaseConfig = {
@@ -92,6 +104,10 @@
     const sendButton = document.getElementById("sendBtn");
     const groupName = document.getElementById("groupName");
     const listaMiembros = document.getElementById("listaMiembros");
+
+    const fileInput = document.getElementById("fileInput");
+    const fileUploadBtn = document.getElementById("fileUploadBtn");
+    const sendLocationButton = document.getElementById("sendLocationBtn");
 
     let currentUser = null;
 
@@ -136,7 +152,23 @@
           messageElement.innerHTML = `
             <div class="${isMine ? 'message-sent' : 'message-received'} p-3">
               <p class="mb-0 fw-bold mb-1">${mensaje.nombre || 'Anónimo'}:</p>
-              <p class="mb-0">${mensaje.text}</p>
+              <p class="mb-0">
+                ${
+                  mensaje.type === "location"
+                  ? `<a href="${mensaje.text.split("Ubicación: ")[1]}" target="_blank">Ver ubicación</a>`
+                  : mensaje.type === "image"
+                  ? `<img src="${mensaje.text}" alt="Imagen" class="img-fluid rounded" style="max-width: 200px;" />`
+                  : mensaje.type === "file"
+                  ? `<a href="${mensaje.text}" target="_blank" download>${mensaje.fileName || 'Descargar archivo'}</a>`
+                  : mensaje.text
+                }
+              </p>
+              ${
+                mensaje.type === "location" ? `
+                  <div class="map-container">
+                    <iframe src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAoViWSDtyiVzPQ8BJPBEFl_D9YwUuF1q4&q=${mensaje.coords}" width="100%" height="150" style="border:0;" allowfullscreen="" aria-hidden="false" tabindex="0"></iframe>
+                  </div>` : ''
+              }
               <small class="text-muted d-block ${isMine ? 'text-end' : ''}">${mensaje.time}</small>
             </div>
           `;
@@ -167,6 +199,81 @@
       });
 
       input.value = "";
+    });
+
+    // Enviar ubicación
+    sendLocationButton.addEventListener("click", () => {
+      if (!navigator.geolocation) {
+        alert("La geolocalización no es compatible con este navegador.");
+        return;
+      }
+
+      sendLocationButton.disabled = true;
+      sendLocationButton.innerHTML = `<span class="spinner-border spinner-border-sm"></span>`;
+
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          const { latitude, longitude } = position.coords;
+          const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+          const locationMessage = {
+            uid: currentUser.uid,
+            text: `Ubicación: https://www.google.com/maps?q=${latitude},${longitude}`,
+            time: time,
+            type: "location",
+            coords: `${latitude},${longitude}`
+          };
+
+          firebase.database().ref(`mensajesGrupos/${grupoId}`).push(locationMessage);
+
+          sendLocationButton.disabled = false;
+          sendLocationButton.innerHTML = `<i class="bi bi-geo-alt-fill"></i>`;
+        },
+        error => {
+          alert("No se pudo obtener la ubicación.");
+          sendLocationButton.disabled = false;
+          sendLocationButton.innerHTML = `<i class="bi bi-geo-alt-fill"></i>`;
+        }
+      );
+    });
+
+    // Subir archivo o imagen
+    fileUploadBtn.addEventListener("click", () => fileInput.click());
+
+    fileInput.addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const storage = firebase.app().storage("gs://poi-nuevo-b93f9.firebasestorage.app");
+      const storageRef = storage.ref();
+      const fileRef = storageRef.child(`mensajesGrupos/${grupoId}/${Date.now()}_${file.name}`);
+
+      fileUploadBtn.disabled = true;
+      fileUploadBtn.innerHTML = `<span class="spinner-border spinner-border-sm"></span>`;
+
+      try {
+        await fileRef.put(file);
+        const fileURL = await fileRef.getDownloadURL();
+
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        const messageData = {
+          uid: currentUser.uid,
+          text: fileURL,
+          time: time,
+          type: file.type.startsWith("image/") ? "image" : "file",
+          fileName: file.name
+        };
+
+        firebase.database().ref(`mensajesGrupos/${grupoId}`).push(messageData);
+      } catch (error) {
+        console.error("Error subiendo archivo:", error);
+        alert("Hubo un error al subir el archivo.");
+      }
+
+      fileUploadBtn.disabled = false;
+      fileUploadBtn.innerHTML = `<i class="bi bi-paperclip"></i>`;
+      fileInput.value = "";
     });
   </script>
 

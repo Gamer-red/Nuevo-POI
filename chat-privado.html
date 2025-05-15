@@ -26,6 +26,10 @@
       background: #f1f1f1;
       border-radius: 10px 10px 10px 0;
     }
+    .map-container {
+      width: 100%;
+      height: 150px;
+    }
   </style>
 </head>
 <body>
@@ -39,6 +43,9 @@
         <div class="chat-messages mb-3 flex-grow-1 overflow-auto" id="chatMessages"></div>
         <div class="input-group">
           <input type="text" class="form-control" placeholder="Escribe un mensaje..." id="messageInput" />
+          <button class="btn btn-outline-secondary" id="sendLocationBtn" title="Enviar ubicación">
+            <i class="bi bi-geo-alt-fill"></i>
+          </button>
           <button class="btn btn-primary" id="sendBtn"><i class="bi bi-send"></i></button>
         </div>
       </div>
@@ -49,6 +56,8 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+
 
   <script>
     const firebaseConfig = {
@@ -102,7 +111,16 @@
         messageElement.className = `d-flex justify-content-${isMine ? 'end' : 'start'} mb-2`;
         messageElement.innerHTML = `
           <div class="${isMine ? 'message-sent' : 'message-received'} p-3">
-            <p class="mb-0">${mensaje.text}</p>
+            <p class="mb-0">
+              ${mensaje.type === "location" 
+                ? `<a href="${mensaje.text.split("Ubicación: ")[1]}" target="_blank">Ver ubicación</a>`
+                : mensaje.text}
+            </p>
+            ${mensaje.type === "location" ? `
+              <div class="map-container">
+               <iframe src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAoViWSDtyiVzPQ8BJPBEFl_D9YwUuF1q4&q=${mensaje.coords}" width="100%" height="150" style="border:0;" allowfullscreen="" aria-hidden="false" tabindex="0"></iframe>
+              </div>
+            ` : ''}
             <small class="text-muted d-block ${isMine ? 'text-end' : ''}">${mensaje.time}</small>
           </div>
         `;
@@ -126,6 +144,43 @@
       });
 
       input.value = "";
+    });
+
+    const sendLocationButton = document.getElementById("sendLocationBtn");
+
+    sendLocationButton.addEventListener("click", () => {
+      if (!navigator.geolocation) {
+        alert("La geolocalización no es compatible con este navegador.");
+        return;
+      }
+
+      sendLocationButton.disabled = true;
+      sendLocationButton.innerHTML = `<span class="spinner-border spinner-border-sm"></span>`;
+
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          const { latitude, longitude } = position.coords;
+          const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+          const locationMessage = {
+            uid: currentUser.uid,
+            text: `Ubicación: https://www.google.com/maps?q=${latitude},${longitude}`,
+            time: time,
+            type: "location",
+            coords: `${latitude},${longitude}`
+          };
+
+          firebase.database().ref("chatsPrivados/" + chatId).push(locationMessage);
+
+          sendLocationButton.disabled = false;
+          sendLocationButton.innerHTML = `<i class="bi bi-geo-alt-fill"></i>`;
+        },
+        error => {
+          alert("No se pudo obtener la ubicación.");
+          sendLocationButton.disabled = false;
+          sendLocationButton.innerHTML = `<i class="bi bi-geo-alt-fill"></i>`;
+        }
+      );
     });
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
